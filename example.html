@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>experiment</title>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-call-function"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-canvas-keyboard-response"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-instructions"></script>
+    <script src="https://cdn.jsdelivr.net/gh/kinleyid/jspsych-2st@v0.6.0/2st.js"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body></body>
+  <script>
+    function sendData(data) {
+      fetch('https://your-server-url/save_data', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+      })
+      .then(response => response.json())
+      .then(result => {
+          console.log('データが保存されました:', result);
+      })
+      .catch(error => {
+          console.error('データ保存エラー:', error);
+      });
+    }
+
+    var jsPsych = initJsPsych({
+      on_finish: function() {
+        const data = jsPsych.data.get().json(); // 収集したデータを取得
+        sendData(data); // 収集したデータを送信
+        jsPsych.data.displayData();
+      },
+    });
+
+    two_step_task.images.set_files_to_default();
+
+    var timeline = [
+      { // preload
+        type: jsPsychPreload,
+        images: two_step_task.images.list_filenames()
+      },
+      two_step_task.trials.initialize_experiment(),
+      two_step_task.trials.example_instructions(),
+      // Reset reward probabilities:
+      two_step_task.trials.initialize_experiment(),
+      { // full experiment
+        timeline: [two_step_task.trials.single_trial()],
+        repetitions: 100
+      },
+    ];
+
+    jsPsych.run(timeline);
+  </script>
+</html>
+
