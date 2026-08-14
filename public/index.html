@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>生年月日入力フォーム</title>
+
+  <!-- saveResults.jsのインポート -->
+  <script type="module">
+    import { saveResults } from './tasks/two-step/js/saveResults.js';
+    window.saveResults = saveResults;
+  </script>
+</head>
+
+<body>
+  <h2></h2>
+  <hr>
+
+  <h2>あなたの生年月日を半角数字で入力、または右側の矢印カーソルで選択してください</h2>
+
+  <form id="dob-form">
+
+    <label for="dob-year">年</label>
+    <input
+      type="number"
+      id="dob-year"
+      name="dob-year"
+      placeholder="YYYY"
+      required
+      min="1940"
+      max="2007"
+      style="font-size: 20px; padding: 10px; width: 200px;"
+    >
+
+    <p>
+      <label for="dob-month">月</label>
+      <input
+        type="number"
+        id="dob-month"
+        name="dob-month"
+        placeholder="MM"
+        required
+        min="1"
+        max="12"
+        style="font-size: 20px; padding: 10px; width: 200px;"
+      >
+    </p>
+
+    <p>
+      <label for="dob-day">日</label>
+      <input
+        type="number"
+        id="dob-day"
+        name="dob-day"
+        placeholder="DD"
+        required
+        min="1"
+        max="31"
+        style="font-size: 20px; padding: 10px; width: 200px;"
+      >
+    </p>
+
+    <p id="dob-error" style="color: red; display: none;">
+      生年月日を正しく入力してください。
+    </p>
+
+    <p>
+      <button
+        type="submit"
+        style="font-size: 20px; padding: 10px 20px; width: 220px;"
+      >
+        準備完了
+      </button>
+    </p>
+
+  </form>
+
+  <!-- 実験ページへのリンク -->
+  <div id="experiment-link-container" style="display: none;">
+    <a
+      href="../tasks/two-step/experimentok.html"
+      id="experiment-link"
+      style="font-size: 30px; font-weight: bold; color: blue;"
+    >
+      開始する
+    </a>
+  </div>
+
+  <hr>
+
+  <script>
+    // 生年月日フォームの送信イベント
+    document.getElementById('dob-form').addEventListener('submit', function(event) {
+
+      event.preventDefault(); // フォーム送信を防止
+
+      // 生年月日の入力値を取得
+      const year = parseInt(document.getElementById('dob-year').value);
+      const month = parseInt(document.getElementById('dob-month').value);
+      const day = parseInt(document.getElementById('dob-day').value);
+
+      // バリデーション
+      const isValidDate = validateDate(year, month, day);
+
+      const errorMessage = document.getElementById('dob-error');
+      const experimentLinkContainer = document.getElementById('experiment-link-container');
+      const experimentLink = document.getElementById('experiment-link');
+
+      if (isValidDate) {
+
+        errorMessage.style.display = 'none';
+
+        // -----------------------------
+        // 日にちの奇数・偶数でリンク先を分岐
+        // -----------------------------
+
+        let baseUrl = '';
+
+        if (day % 2 === 1) {
+          // 奇数日
+          baseUrl = './tasks/two-step/experimentok.html';
+        } else {
+          // 偶数日
+          baseUrl = './tasks/two-stepl/experimentok.html';
+        }
+
+        // 生年月日をURLパラメータとして追加
+        experimentLink.href =
+          baseUrl + '?dob=' + year + '-' + month + '-' + day;
+
+        // リンク表示
+        experimentLinkContainer.style.display = 'block';
+
+        // タイムスタンプ取得
+        const timestamp = new Date().toISOString();
+
+        // 保存データ
+        const data = {
+          dob: `${year}-${month}-${day}`,
+          timestamp: timestamp
+        };
+
+        // サーバー保存
+        window.saveResults(data);
+
+      } else {
+
+        errorMessage.style.display = 'block';
+        experimentLinkContainer.style.display = 'none';
+
+      }
+
+    });
+
+    // 日付が正しいかどうかをチェックする関数
+    function validateDate(year, month, day) {
+
+      if (month < 1 || month > 12) {
+        return false;
+      }
+
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      return day >= 1 && day <= daysInMonth;
+    }
+
+  </script>
+
+</body>
+</html>
