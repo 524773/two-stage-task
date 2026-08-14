@@ -1,0 +1,19 @@
+/* 例: 質問文と全体のフォントサイズを変更 */
+body, h1, h2, h3, p {
+  font-size: 32px !important; /* !importantを使って上書き */
+}
+
+/* 特定の要素に対して変更 (質問文のフォントサイズ) */
+#question {
+  font-size: 32px !important; /* !importantを使って上書き */
+}
+
+/* 他の要素のフォントサイズも調整したい場合は追加 */
+.choice-container .choice-text {
+  font-size: 32px !important;
+}
+
+#next-button {
+  font-size: 32px !important;
+}
+
